@@ -1,4 +1,5 @@
-﻿using FDAWebAPI.DAL.Model;
+﻿using FDAWebAPI.DAL;
+using FDAWebAPI.DAL.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -15,57 +16,20 @@ namespace FDAWebAPI.Controllers
 {
     public class FDAController : ApiController
     {
+        private readonly IDrugRepository drugRepository = new DrugRepository();
+
         // https://localhost:44344/api/fda
-        [HttpGet]
-        //[Route("api/FDA/{reaction=noval}")]
+        [HttpGet]      
         [Route("api/FDA")]
         [Route("api/FDA/{reaction}")]
         public HttpResponseMessage Get(String reaction = null)
         {
-
-            String apiUrl = "https://api.fda.gov/drug/event.json?search=patient.reaction.reactionmeddrapt.exact:<reaction>&count=patient.drug.medicinalproduct";
-            if (!String.IsNullOrEmpty(reaction))
+            List<Drug> drugList = drugRepository.GetMainIngredients(reaction);
+            if (drugList != null)
             {
-                // replace reaction in reqest
-                apiUrl = apiUrl.Replace("<reaction>", reaction);
+                return Request.CreateResponse(HttpStatusCode.OK, drugList);
             }
-
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(apiUrl);
-            try
-            {
-                List<Drug> drugs = new List<Drug>();
-                WebResponse response = null;
-                try
-                {
-                    response = request.GetResponse();
-                }
-                catch (Exception)
-                {
-                    return Request.CreateResponse(HttpStatusCode.OK, "no data");
-                }
-
-                if (response != null)
-                {
-                    using (Stream responseStream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(responseStream, Encoding.UTF8);
-                        List<Drug> myObjectList = null;
-                        var results = reader.ReadToEnd();
-                        if (drugs != null)
-                        {
-                            JObject o = JObject.Parse(results);
-                            myObjectList = JsonConvert.DeserializeObject<List<Drug>>(o["results"].ToString());
-                            return Request.CreateResponse(HttpStatusCode.OK, myObjectList);
-                        }
-                    }
-                }
-
-                return Request.CreateResponse(HttpStatusCode.OK, "no data");
-            }
-            catch (Exception e)
-            {
-                return Request.CreateResponse(HttpStatusCode.OK, "no data");
-            }
+            return Request.CreateResponse(HttpStatusCode.OK, "no data");          
         }
 
 
