@@ -29,7 +29,7 @@ namespace FDAWebAPI.Controllers
             {
                 return Request.CreateResponse(HttpStatusCode.OK, drugList);
             }
-            return Request.CreateResponse(HttpStatusCode.OK, "no data");          
+            return Request.CreateResponse(HttpStatusCode.NoContent);          
         }
 
 
