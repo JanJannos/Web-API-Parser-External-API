@@ -27,10 +27,8 @@ namespace FDAWebAPI
             config.Formatters.JsonFormatter.SupportedMediaTypes
                 .Add(new MediaTypeHeaderValue("text/html"));
 
-            // Enable Cors
-
-            // config.EnableCors(new EnableCorsAttribute("http://localhost:4200;http://localhost:3000", "*", "*"));  // Angular
-            config.EnableCors(new EnableCorsAttribute("http://localhost:3000", "*", "*"));  // React
+            // Enable Cors            
+            config.EnableCors(new EnableCorsAttribute("http://localhost:4000", "*", "*"));  // React
         }
     }
 }
