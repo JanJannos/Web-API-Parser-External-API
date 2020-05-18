@@ -34,33 +34,37 @@ namespace FDAWebAPI.Controllers
             try
             {
                 List<Drug> drugs = new List<Drug>();
-                WebResponse response = request.GetResponse();
-                using (Stream responseStream = response.GetResponseStream())
+                WebResponse response = null;
+                try
                 {
-                    StreamReader reader = new StreamReader(responseStream, Encoding.UTF8);
-                    List<Drug> myObjectList = null;
-                    var results = reader.ReadToEnd();
-                    if (drugs != null)
-                    {
-                        //dynamic data = JObject.Parse(results);
-                        JObject o = JObject.Parse(results);
-                        myObjectList = JsonConvert.DeserializeObject<List<Drug>>(o["results"].ToString());
-                     
-                        // manipulate data
-                        //if (data.results != null)
-                        //{
-                        //   myObjectList = JsonConvert.DeserializeObject<List<Drug>>(data.results);
-                        //}
+                    response = request.GetResponse();
+                }
+                catch (Exception)
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, "no data");
+                }
 
-                        //return Request.CreateResponse(HttpStatusCode.OK, data);
-                        return Request.CreateResponse(HttpStatusCode.OK, myObjectList);
+                if (response != null)
+                {
+                    using (Stream responseStream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(responseStream, Encoding.UTF8);
+                        List<Drug> myObjectList = null;
+                        var results = reader.ReadToEnd();
+                        if (drugs != null)
+                        {
+                            JObject o = JObject.Parse(results);
+                            myObjectList = JsonConvert.DeserializeObject<List<Drug>>(o["results"].ToString());
+                            return Request.CreateResponse(HttpStatusCode.OK, myObjectList);
+                        }
                     }
                 }
-                return Request.CreateResponse(HttpStatusCode.OK, "");
+
+                return Request.CreateResponse(HttpStatusCode.OK, "no data");
             }
             catch (Exception e)
             {
-                return Request.CreateResponse(HttpStatusCode.OK, "JAN");
+                return Request.CreateResponse(HttpStatusCode.OK, "no data");
             }
         }
 
